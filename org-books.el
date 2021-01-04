@@ -111,6 +111,7 @@ PAGE-NODE is the return value of `enlive-fetch' on the page url."
 
 (defun org-books-get-details-isbn (url)
   "Get book details from openlibrary ISBN response from URL."
+  (defvar cover-size "M")
   (let* ((json-object-type 'hash-table)
          (json-array-type 'list)
          (json-key-type 'string)
@@ -119,8 +120,12 @@ PAGE-NODE is the return value of `enlive-fetch' on the page url."
          (data (gethash isbn json))
          (title (gethash "title" data))
          (author (gethash "name" (car (gethash "authors" data))))
-         (pages (gethash "number_of_pages" data)))
-    (list title author `(("ISBN" . ,url) ("Pages" . ,(number-to-string pages))))))
+         (pages (gethash "number_of_pages" data))
+         (isbn (car (gethash "isbn_13" (gethash "identifiers" data)))))
+    (list title author `(("ISBN" . ,url)
+                         ("ISBN13" . ,isbn)
+                         ("Pages" . ,(number-to-string pages))
+                         ("Cover" . ,(concat "[[http://covers.openlibrary.org/b/isbn/" isbn "-" cover-size ".jpg]]"))))))
 
 (defun org-books-get-details (url)
   "Fetch book details from given URL.
